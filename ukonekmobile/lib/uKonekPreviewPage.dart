@@ -51,8 +51,6 @@ class uKonekPreviewPage extends StatelessWidget {
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
-
-              // PERSONAL INFO BOX
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -62,10 +60,8 @@ class uKonekPreviewPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "PERSONAL INFORMATION",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    const Text("PERSONAL INFORMATION",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 10),
                     Text("Name: $firstName $middleName $surname"),
                     Text("Date of Birth: $dob"),
@@ -75,20 +71,15 @@ class uKonekPreviewPage extends StatelessWidget {
                     Text("Email: $email"),
                     Text("Address: $address"),
                     const SizedBox(height: 15),
-                    const Text(
-                      "EMERGENCY CONTACT",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    const Text("EMERGENCY CONTACT",
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text("Name: $emergencyName"),
                     Text("Contact: $emergencyContact"),
                     Text("Relation: $relation"),
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // ID IMAGE & VERIFICATION STATUS
               if (idImage != null)
                 Column(
                   children: [
@@ -110,10 +101,7 @@ class uKonekPreviewPage extends StatelessWidget {
                 )
               else
                 const Text("No ID selected"),
-
               const Spacer(),
-
-              // NEXT BUTTON → ACCOUNT CREDENTIALS
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:ukonekmobile/uKonekMenuPage.dart';
 
 class uKonekConsentPage extends StatelessWidget {
   final String firstName;
@@ -57,10 +58,19 @@ class uKonekConsentPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                // Final submission logic here
-                // e.g., send data to server or save locally
+                // TODO: Add your account submission logic here (e.g., save to server or local DB)
+
+                // Navigate to Menu page and remove all previous pages from stack
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const uKonekMenuPage()), // replace MenuPage with your actual menu widget
+                      (route) => false, // removes all previous routes so user cannot go back
+                );
+
+                // Optional: show a confirmation
                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Account created successfully!")));
+                  const SnackBar(content: Text("Account created successfully!")),
+                );
               },
               child: const Text("AGREE & SUBMIT"),
             ),

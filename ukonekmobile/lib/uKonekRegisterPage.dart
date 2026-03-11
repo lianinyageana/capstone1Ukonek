@@ -16,7 +16,7 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
   final firstNameController = TextEditingController();
-  final middleNameController = TextEditingController(); // Updated
+  final middleNameController = TextEditingController();
   final surnameController = TextEditingController();
   final ageController = TextEditingController();
   final contactController = TextEditingController();
@@ -31,7 +31,6 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
   File? _idImage;
   bool _idVerified = false;
 
-  // PICK DATE
   Future<void> pickDate() async {
     DateTime? picked = await showDatePicker(
       context: context,
@@ -54,7 +53,6 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
     }
   }
 
-  // PICK ID IMAGE
   Future<void> pickIDImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -62,14 +60,12 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
       setState(() {
         _idImage = File(pickedFile.path);
       });
-      await verifyID(); // auto verify after picking
+      await verifyID();
     }
   }
 
-  // VERIFY ID USING OCR + FUZZY MATCH
   Future<void> verifyID() async {
     if (_idImage == null) return;
-
     final inputImage = InputImage.fromFile(_idImage!);
     final textRecognizer = TextRecognizer();
     final recognizedText = await textRecognizer.processImage(inputImage);
@@ -93,9 +89,7 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(matches
-          ? "✅ ID verified"
-          : "⚠️ ID may not match. Please verify."),
+      content: Text(matches ? "✅ ID verified" : "⚠️ ID may not match. Please verify."),
     ));
   }
 
@@ -104,7 +98,6 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
     return Scaffold(
       body: Column(
         children: [
-          // HEADER
           Container(
             height: 140,
             decoration: const BoxDecoration(
@@ -130,10 +123,8 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
                   child: Column(
                     children: [
                       buildTextField("First Name", firstNameController),
-                      buildTextField("Middle Name", middleNameController), // updated
+                      buildTextField("Middle Name", middleNameController),
                       buildTextField("Surname", surnameController),
-
-                      // DOB
                       GestureDetector(
                         onTap: pickDate,
                         child: AbsorbPointer(
@@ -147,10 +138,7 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
                       buildTextField("Age", ageController, enabled: false),
                       buildTextField("Email", emailController),
                       buildTextField("Complete Address", addressController),
-
                       const SizedBox(height: 15),
-
-                      // SEX
                       const Align(
                           alignment: Alignment.centerLeft,
                           child: Text("Sex", style: TextStyle(fontWeight: FontWeight.bold))),
@@ -185,10 +173,6 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
                             child: Text("Selected Sex: $selectedSex",
                                 style: const TextStyle(fontWeight: FontWeight.bold))),
                       ),
-
-                      const SizedBox(height: 15),
-
-                      // EMERGENCY CONTACT
                       const Align(
                           alignment: Alignment.centerLeft,
                           child: Text("EMERGENCY CONTACT",
@@ -197,10 +181,7 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
                       buildTextField("Complete Name", emergencyNameController),
                       buildTextField("Contact Number", emergencyContactController),
                       buildTextField("Relation", relationController),
-
                       const SizedBox(height: 15),
-
-                      // ID UPLOAD
                       const Align(
                           alignment: Alignment.centerLeft,
                           child: Text("Upload National ID",
@@ -209,23 +190,25 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
                       _idImage != null
                           ? Column(
                         children: [
-                          Image.file(_idImage!,
-                              width: 200, height: 120, fit: BoxFit.cover),
+                          Image.file(
+                            _idImage!,
+                            width: 200,
+                            height: 120,
+                            fit: BoxFit.cover,
+                          ),
                           const SizedBox(height: 5),
                           Text(
                             _idVerified ? "✅ ID Verified" : "⚠️ ID Not Verified",
                             style: TextStyle(
-                                color: _idVerified ? Colors.green : Colors.red,
-                                fontWeight: FontWeight.bold),
-                          )
+                              color: _idVerified ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ],
                       )
                           : const Text("No ID selected"),
-                      ElevatedButton(
-                          onPressed: pickIDImage, child: const Text("Select ID")),
-
+                      ElevatedButton(onPressed: pickIDImage, child: const Text("Select ID")),
                       const SizedBox(height: 30),
-
                       ElevatedButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate() &&
@@ -237,7 +220,7 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
                                 MaterialPageRoute(
                                     builder: (_) => uKonekPreviewPage(
                                       firstName: firstNameController.text,
-                                      middleName: middleNameController.text, // updated
+                                      middleName: middleNameController.text,
                                       surname: surnameController.text,
                                       dob:
                                       "${selectedDate!.month}/${selectedDate!.day}/${selectedDate!.year}",

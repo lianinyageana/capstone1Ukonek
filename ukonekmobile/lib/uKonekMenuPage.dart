@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'uKonekRegisterPage.dart';
+import 'uKonekLoginPage.dart';
 
 class uKonekMenuPage extends StatefulWidget {
   const uKonekMenuPage({super.key});
@@ -48,7 +49,6 @@ class _uKonekMenuPageState extends State<uKonekMenuPage> {
                   const SizedBox(height: 30),
                   buildMenuButton("LOGIN"),
                   const SizedBox(height: 30),
-                  buildMenuButton("QUICK TIME MONITORING"),
                 ],
               ),
             ),
@@ -79,6 +79,16 @@ class _uKonekMenuPageState extends State<uKonekMenuPage> {
               ),
             );
           }
+
+          else{
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const uKonekLoginPage(),
+              ),
+            );
+          }
+
           // You can add navigation for LOGIN and QUICK TIME MONITORING here
         },
         child: Text(
