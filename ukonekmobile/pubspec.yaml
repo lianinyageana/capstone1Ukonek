@@ -38,6 +38,7 @@ dependencies:
   image_picker: ^1.2.1
   google_mlkit_text_recognition: ^0.15.1
   string_similarity: ^2.1.1
+  mailer: ^6.1.0
 
 
   # The following adds the Cupertino Icons font to your application.
