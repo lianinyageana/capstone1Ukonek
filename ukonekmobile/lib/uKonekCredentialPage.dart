@@ -2,43 +2,22 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'uKonekOtpPage.dart';
-// TODO: import your sign-in page below
 // import 'uKonekSignInPage.dart';
 
 class uKonekCredentialsPage extends StatefulWidget {
-  final String firstName;
-  final String middleName;
-  final String surname;
-  final String dob;
-  final String age;
-  final String contact;
-  final String sex;
-  final String email;
-  final String address;
-  final String emergencyName;
-  final String emergencyContact;
-  final String relation;
+  final String firstName, middleName, surname, dob, age, contact, sex, email, address;
+  final String emergencyName, emergencyContact, relation;
   final File? idImage;
   final bool idVerified;
   final String extractedOcrText;
 
   const uKonekCredentialsPage({
     super.key,
-    required this.firstName,
-    required this.middleName,
-    required this.surname,
-    required this.dob,
-    required this.age,
-    required this.contact,
-    required this.sex,
-    required this.email,
-    required this.address,
-    required this.emergencyName,
-    required this.emergencyContact,
-    required this.relation,
-    required this.idImage,
-    required this.idVerified,
-    this.extractedOcrText = "",
+    required this.firstName, required this.middleName, required this.surname,
+    required this.dob, required this.age, required this.contact, required this.sex,
+    required this.email, required this.address, required this.emergencyName,
+    required this.emergencyContact, required this.relation,
+    required this.idImage, required this.idVerified, this.extractedOcrText = "",
   });
 
   @override
@@ -50,372 +29,299 @@ class _uKonekCredentialsPageState extends State<uKonekCredentialsPage> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
-  bool _agreedToTerms = false; // tracks checkbox state
+  bool _agreedToTerms = false;
 
-  // Shows a scrollable Terms & Privacy dialog
+  static const _primary = Color(0xFF0D47A1);
+  static const _primaryLight = Color(0xFF1976D2);
+
+  // Password strength
+  String get _password => passwordController.text;
+  int get _strengthLevel {
+    if (_password.isEmpty) return 0;
+    int score = 0;
+    if (_password.length >= 8) score++;
+    if (_password.contains(RegExp(r'[A-Z]'))) score++;
+    if (_password.contains(RegExp(r'[0-9]'))) score++;
+    if (_password.contains(RegExp(r'[!@#\$&*~]'))) score++;
+    return score;
+  }
+  Color get _strengthColor => [Colors.grey, Colors.red, Colors.orange, Colors.yellow.shade700, Colors.green][_strengthLevel];
+  String get _strengthLabel => ["", "Weak", "Fair", "Good", "Strong"][_strengthLevel];
+
   void _showTermsDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Terms & Privacy Policy",
-                style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF0D47A1)),
-              ),
-              const SizedBox(height: 12),
-              const SizedBox(
-                height: 320,
-                child: SingleChildScrollView(
-                  child: Text(
-                    "1. ACCEPTANCE OF TERMS\n"
-                        "By creating an account with U-Konek, you agree to be bound by these Terms and Conditions and our Privacy Policy. If you do not agree, please do not proceed with registration.\n\n"
-                        "2. DATA COLLECTION & USE\n"
-                        "We collect personal information including your name, date of birth, contact details, address, and a government-issued ID for identity verification purposes. This information is used solely to provide U-Konek services and will not be sold to third parties.\n\n"
-                        "3. IDENTITY VERIFICATION\n"
-                        "You consent to our use of OCR (Optical Character Recognition) technology to read and verify the text on your uploaded ID. The extracted data is used only for verification and is stored securely.\n\n"
-                        "4. ACCOUNT SECURITY\n"
-                        "You are responsible for maintaining the confidentiality of your username and password. U-Konek will not be liable for any unauthorized access resulting from your failure to secure your credentials.\n\n"
-                        "5. EMERGENCY CONTACT\n"
-                        "The emergency contact information you provide may be used to reach your designated contact in the event of an emergency related to your account or services.\n\n"
-                        "6. DATA PRIVACY\n"
-                        "Your personal data is protected in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173). You have the right to access, correct, and request deletion of your personal data at any time by contacting our support team.\n\n"
-                        "7. PROHIBITED USE\n"
-                        "You agree not to use U-Konek services for any unlawful purpose, including but not limited to identity fraud, misrepresentation, or any activity that violates applicable laws.\n\n"
-                        "8. CHANGES TO TERMS\n"
-                        "U-Konek reserves the right to update these Terms and Privacy Policy at any time. Continued use of the application after changes constitutes your acceptance of the revised terms.\n\n"
-                        "9. CONTACT US\n"
-                        "For questions or concerns about these terms, please contact us at support@ukonek.ph.",
-                    style: TextStyle(fontSize: 13, height: 1.6),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D47A1),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    // Auto-check the box after reading
-                    setState(() => _agreedToTerms = true);
-                  },
-                  child: const Text("I Understand",
-                      style: TextStyle(color: Colors.white)),
-                ),
-              ),
-            ],
-          ),
-        ),
+    showDialog(context: context, builder: (ctx) => Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Container(width: 36, height: 36, decoration: BoxDecoration(color: _primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.gavel_rounded, color: _primary, size: 18)),
+            const SizedBox(width: 10),
+            const Text("Terms & Privacy Policy", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1A1A2E))),
+          ]),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 12),
+          const SizedBox(height: 300, child: SingleChildScrollView(
+            child: Text(
+              "1. ACCEPTANCE OF TERMS\nBy creating an account with U-Konek, you agree to be bound by these Terms and Conditions and our Privacy Policy.\n\n"
+                  "2. DATA COLLECTION & USE\nWe collect personal information including your name, date of birth, contact details, address, and a government-issued ID for identity verification purposes.\n\n"
+                  "3. IDENTITY VERIFICATION\nYou consent to our use of OCR technology to read and verify the text on your uploaded ID. The extracted data is used only for verification.\n\n"
+                  "4. ACCOUNT SECURITY\nYou are responsible for maintaining the confidentiality of your username and password.\n\n"
+                  "5. DATA PRIVACY\nYour personal data is protected in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173).\n\n"
+                  "6. PROHIBITED USE\nYou agree not to use U-Konek services for any unlawful purpose.\n\n"
+                  "7. CHANGES TO TERMS\nU-Konek reserves the right to update these Terms and Privacy Policy at any time.\n\n"
+                  "8. CONTACT US\nFor questions, please contact us at support@ukonek.ph.",
+              style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.7),
+            ),
+          )),
+          const SizedBox(height: 16),
+          SizedBox(width: double.infinity, child: ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: _primary, foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), padding: const EdgeInsets.symmetric(vertical: 14)),
+            onPressed: () { Navigator.pop(ctx); setState(() => _agreedToTerms = true); },
+            child: const Text("I Understand & Agree"),
+          )),
+        ]),
       ),
-    );
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFF),
       body: Column(
         children: [
-          // Header
+          // ── Header ──────────────────────────────────────────────────
           Container(
-            height: 140,
             decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xFF0D47A1), Color(0xFF1976D2)]),
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40)),
+              gradient: LinearGradient(colors: [_primary, _primaryLight], begin: Alignment.topLeft, end: Alignment.bottomRight),
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
             ),
-            child: const Center(
-              child: Text(
-                "CREATE YOUR ACCOUNT",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+                child: Row(children: [
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(width: 38, height: 38,
+                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.18), borderRadius: BorderRadius.circular(12)),
+                        child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18)),
+                  ),
+                  const SizedBox(width: 14),
+                  const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text("Set Credentials", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 2),
+                    Text("Create your login details", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  ]),
+                ]),
               ),
             ),
           ),
 
           Expanded(
-            child: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Set up your login credentials",
-                        style:
-                        TextStyle(fontSize: 14, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Username
-                      TextFormField(
-                        controller: usernameController,
-                        decoration: const InputDecoration(
-                          labelText: "Username",
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person_outline),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Username is required";
-                          }
-                          if (value.length < 4) {
-                            return "Username must be at least 4 characters";
-                          }
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // ── Credentials card ──────────────────────────────
+                    _card(children: [
+                      _cardHeader(Icons.key_rounded, "Account Credentials"),
+                      _inputField("Username", usernameController, Icons.person_outline_rounded, validator: (v) {
+                        if (v == null || v.isEmpty) return "Username is required";
+                        if (v.length < 4) return "At least 4 characters";
+                        return null;
+                      }),
+                      _inputField("Password", passwordController, Icons.lock_outline_rounded, obscure: _obscurePassword,
+                        suffix: IconButton(icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20, color: Colors.grey.shade400),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword)),
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return "Password is required";
+                          if (v.length < 6) return "At least 6 characters";
                           return null;
                         },
+                        onChanged: (_) => setState(() {}),
                       ),
-                      const SizedBox(height: 16),
+                      // Password strength bar
+                      if (_password.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Row(children: [
+                          Expanded(child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: _strengthLevel / 4,
+                              backgroundColor: Colors.grey.shade200,
+                              valueColor: AlwaysStoppedAnimation(_strengthColor),
+                              minHeight: 5,
+                            ),
+                          )),
+                          const SizedBox(width: 10),
+                          Text(_strengthLabel, style: TextStyle(fontSize: 11, color: _strengthColor, fontWeight: FontWeight.w600)),
+                        ]),
+                        const SizedBox(height: 14),
+                      ],
+                      _inputField("Confirm Password", confirmPasswordController, Icons.lock_outline_rounded, obscure: _obscureConfirm,
+                          suffix: IconButton(icon: Icon(_obscureConfirm ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 20, color: Colors.grey.shade400),
+                              onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm)),
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return "Please confirm your password";
+                            if (v != passwordController.text) return "Passwords do not match";
+                            return null;
+                          }),
+                    ]),
 
-                      // Password
-                      TextFormField(
-                        controller: passwordController,
-                        obscureText: _obscurePassword,
-                        decoration: InputDecoration(
-                          labelText: "Password",
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility),
-                            onPressed: () => setState(() =>
-                            _obscurePassword = !_obscurePassword),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Password is required";
-                          }
-                          if (value.length < 6) {
-                            return "Password must be at least 6 characters";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                      // Confirm Password
-                      TextFormField(
-                        controller: confirmPasswordController,
-                        obscureText: _obscureConfirm,
-                        decoration: InputDecoration(
-                          labelText: "Confirm Password",
-                          border: const OutlineInputBorder(),
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(_obscureConfirm
-                                ? Icons.visibility_off
-                                : Icons.visibility),
-                            onPressed: () => setState(
-                                    () => _obscureConfirm = !_obscureConfirm),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Please confirm your password";
-                          }
-                          if (value != passwordController.text) {
-                            return "Passwords do not match";
-                          }
-                          return null;
-                        },
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // ── Consent / Terms Checkbox ──────────────────────
-                      Container(
+                    // ── Terms checkbox card ───────────────────────────
+                    _card(children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: _agreedToTerms
-                              ? Colors.blue.shade50
-                              : Colors.grey.shade100,
-                          border: Border.all(
-                            color: _agreedToTerms
-                                ? const Color(0xFF1976D2)
-                                : Colors.grey.shade300,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
+                          color: _agreedToTerms ? const Color(0xFFEEF7FF) : const Color(0xFFF8FAFF),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: _agreedToTerms ? _primary.withOpacity(0.3) : const Color(0xFFDDE3F0)),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Checkbox(
+                        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          SizedBox(
+                            width: 24, height: 24,
+                            child: Checkbox(
                               value: _agreedToTerms,
-                              activeColor: const Color(0xFF0D47A1),
-                              onChanged: (value) {
-                                setState(
-                                        () => _agreedToTerms = value ?? false);
-                              },
+                              activeColor: _primary,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                              onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
                             ),
-                            Expanded(
-                              child: RichText(
-                                text: TextSpan(
-                                  style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.black87),
-                                  children: [
-                                    const TextSpan(
-                                        text: "I have read and agree to the "),
-                                    TextSpan(
-                                      text: "Terms & Privacy Policy",
-                                      style: const TextStyle(
-                                        color: Color(0xFF1976D2),
-                                        fontWeight: FontWeight.bold,
-                                        decoration:
-                                        TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = _showTermsDialog,
-                                    ),
-                                    const TextSpan(
-                                        text:
-                                        " of U-Konek before signing up."),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Show error hint if not checked and user tries to proceed
-                      if (!_agreedToTerms)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 12, top: 4),
-                          child: Text(
-                            "You must agree to the terms to continue.",
-                            style: TextStyle(
-                                color: Colors.red, fontSize: 11),
                           ),
-                        ),
-
-                      const SizedBox(height: 24),
-
-                      // SIGN UP Button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _agreedToTerms
-                                ? const Color(0xFF0D47A1)
-                                : Colors.grey,
-                            padding:
-                            const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                          onPressed: () {
-                            if (!_agreedToTerms) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      "⚠️ Please agree to the Terms & Privacy Policy to continue."),
-                                ),
-                              );
-                              return;
-                            }
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => uKonekOtpPage(
-                                    firstName: widget.firstName,
-                                    middleName: widget.middleName,
-                                    surname: widget.surname,
-                                    dob: widget.dob,
-                                    age: widget.age,
-                                    contact: widget.contact,
-                                    sex: widget.sex,
-                                    email: widget.email,
-                                    address: widget.address,
-                                    emergencyName: widget.emergencyName,
-                                    emergencyContact: widget.emergencyContact,
-                                    relation: widget.relation,
-                                    username: usernameController.text,
-                                    password: passwordController.text,
-                                    idVerified: widget.idVerified,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          child: const Text(
-                            "SIGN UP",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Already have an account? Sign in
-                      Center(
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.black87),
+                          const SizedBox(width: 10),
+                          Expanded(child: RichText(text: TextSpan(
+                            style: const TextStyle(fontSize: 13, color: Colors.black54, height: 1.4),
                             children: [
-                              const TextSpan(
-                                  text: "Already have an account? "),
+                              const TextSpan(text: "I have read and agree to the "),
                               TextSpan(
-                                text: "Sign in here",
-                                style: const TextStyle(
-                                  color: Color(0xFF1976D2),
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    // TODO: Replace with your sign-in page
-                                    // Navigator.pushReplacement(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (_) => uKonekSignInPage(),
-                                    //   ),
-                                    // );
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                      content: Text(
-                                          "Redirecting to Sign In..."),
-                                    ));
-                                  },
+                                text: "Terms & Privacy Policy",
+                                style: const TextStyle(color: _primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()..onTap = _showTermsDialog,
                               ),
+                              const TextSpan(text: " of U-Konek."),
                             ],
-                          ),
-                        ),
+                          ))),
+                        ]),
                       ),
+                    ]),
 
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+                    const SizedBox(height: 24),
+
+                    // ── SIGN UP button ────────────────────────────────
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _agreedToTerms ? _primary : Colors.grey.shade300,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          elevation: _agreedToTerms ? 4 : 0,
+                          shadowColor: _primary.withOpacity(0.4),
+                        ),
+                        onPressed: () {
+                          if (!_agreedToTerms) {
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("⚠️ Please agree to the Terms & Privacy Policy.")));
+                            return;
+                          }
+                          if (_formKey.currentState!.validate()) {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => uKonekOtpPage(
+                              firstName: widget.firstName, middleName: widget.middleName, surname: widget.surname,
+                              dob: widget.dob, age: widget.age, contact: widget.contact, sex: widget.sex,
+                              email: widget.email, address: widget.address, emergencyName: widget.emergencyName,
+                              emergencyContact: widget.emergencyContact, relation: widget.relation,
+                              username: usernameController.text, password: passwordController.text, idVerified: widget.idVerified,
+                            )));
+                          }
+                        },
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          const Text("CREATE ACCOUNT", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, letterSpacing: 1)),
+                          const SizedBox(width: 8),
+                          Icon(Icons.arrow_forward_rounded, size: 20, color: _agreedToTerms ? Colors.white : Colors.grey.shade500),
+                        ]),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ── Sign in link ──────────────────────────────────
+                    Center(child: RichText(text: TextSpan(
+                      style: const TextStyle(fontSize: 13, color: Colors.black54),
+                      children: [
+                        const TextSpan(text: "Already have an account? "),
+                        TextSpan(
+                          text: "Sign in here",
+                          style: const TextStyle(color: _primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()..onTap = () =>
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Redirecting to Sign In..."))),
+                        ),
+                      ],
+                    ))),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _card({required List<Widget> children}) => Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 4))],
+    ),
+    padding: const EdgeInsets.all(20),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+  );
+
+  Widget _cardHeader(IconData icon, String title) => Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Row(children: [
+      Container(width: 34, height: 34,
+          decoration: BoxDecoration(color: _primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, color: _primary, size: 18)),
+      const SizedBox(width: 10),
+      Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1A1A2E))),
+    ]),
+  );
+
+  Widget _inputField(String label, TextEditingController controller, IconData icon,
+      {bool obscure = false, Widget? suffix, required String? Function(String?) validator, void Function(String)? onChanged}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        validator: validator,
+        onChanged: onChanged,
+        style: const TextStyle(fontSize: 14, color: Color(0xFF1A1A2E)),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+          prefixIcon: Icon(icon, color: _primary.withOpacity(0.6), size: 20),
+          suffixIcon: suffix,
+          filled: true, fillColor: const Color(0xFFF8FAFF),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFDDE3F0))),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFDDE3F0))),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _primary, width: 1.8)),
+          errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Colors.redAccent)),
+        ),
       ),
     );
   }
