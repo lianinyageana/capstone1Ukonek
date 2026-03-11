@@ -1,10 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'uKonekQRPage.dart';
+import 'uKonekCredentialPage.dart';
 
 class uKonekPreviewPage extends StatelessWidget {
-
   final String firstName;
-  final String middleInitial;
+  final String middleName;
   final String surname;
   final String dob;
   final String age;
@@ -15,11 +15,13 @@ class uKonekPreviewPage extends StatelessWidget {
   final String emergencyName;
   final String emergencyContact;
   final String relation;
+  final File? idImage;
+  final bool idVerified;
 
   const uKonekPreviewPage({
     super.key,
     required this.firstName,
-    required this.middleInitial,
+    required this.middleName,
     required this.surname,
     required this.dob,
     required this.age,
@@ -30,6 +32,8 @@ class uKonekPreviewPage extends StatelessWidget {
     required this.emergencyName,
     required this.emergencyContact,
     required this.relation,
+    required this.idImage,
+    required this.idVerified,
   });
 
   @override
@@ -40,7 +44,6 @@ class uKonekPreviewPage extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
@@ -49,6 +52,7 @@ class uKonekPreviewPage extends StatelessWidget {
                 ),
               ),
 
+              // PERSONAL INFO BOX
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -58,21 +62,23 @@ class uKonekPreviewPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("PERSONAL INFORMATION",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      "PERSONAL INFORMATION",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 10),
-
-                    Text("Name: $firstName $middleInitial $surname"),
+                    Text("Name: $firstName $middleName $surname"),
                     Text("Date of Birth: $dob"),
                     Text("Age: $age"),
                     Text("Contact: $contact"),
                     Text("Sex: $sex"),
                     Text("Email: $email"),
                     Text("Address: $address"),
-
                     const SizedBox(height: 15),
-                    const Text("EMERGENCY CONTACT",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      "EMERGENCY CONTACT",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Text("Name: $emergencyName"),
                     Text("Contact: $emergencyContact"),
                     Text("Relation: $relation"),
@@ -80,19 +86,60 @@ class uKonekPreviewPage extends StatelessWidget {
                 ),
               ),
 
+              const SizedBox(height: 20),
+
+              // ID IMAGE & VERIFICATION STATUS
+              if (idImage != null)
+                Column(
+                  children: [
+                    Image.file(
+                      idImage!,
+                      width: 200,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      idVerified ? "✅ ID Verified" : "⚠️ ID Not Verified",
+                      style: TextStyle(
+                        color: idVerified ? Colors.green : Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                )
+              else
+                const Text("No ID selected"),
+
               const Spacer(),
 
+              // NEXT BUTTON → ACCOUNT CREDENTIALS
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const uKonekQRPage(),
+                      builder: (_) => uKonekCredentialsPage(
+                        firstName: firstName,
+                        middleName: middleName,
+                        surname: surname,
+                        dob: dob,
+                        age: age,
+                        contact: contact,
+                        sex: sex,
+                        email: email,
+                        address: address,
+                        emergencyName: emergencyName,
+                        emergencyContact: emergencyContact,
+                        relation: relation,
+                        idImage: idImage,
+                        idVerified: idVerified,
+                      ),
                     ),
                   );
                 },
                 child: const Text("NEXT"),
-              )
+              ),
             ],
           ),
         ),

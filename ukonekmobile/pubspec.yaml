@@ -35,6 +35,9 @@ dependencies:
   flutter_native_splash: ^2.4.7
   qr_flutter: ^4.1.0
   flutter_multi_formatter: ^2.12.0
+  image_picker: ^1.2.1
+  google_mlkit_text_recognition: ^0.15.1
+  string_similarity: ^2.1.1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -64,8 +67,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/welcome_screen/welcomeScreenPhoto.png
-
+    - assets/welcome_screen/welcomPhoto-removebg-preview.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

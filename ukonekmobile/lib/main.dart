@@ -2,88 +2,101 @@ import 'package:flutter/material.dart';
 import 'package:ukonekmobile/uKonekMenuPage.dart';
 
 void main() {
-  runApp(MaterialApp(debugShowCheckedModeBanner: false,
-    home: HomePage(),));
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: HomePage(),
+  ));
 }
 
-class HomePage extends StatelessWidget{
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: Container(
-            width: double.infinity,
-            height: MediaQuery.of(context).size.height,
-            padding: EdgeInsets.symmetric(horizontal: 30, vertical: 50),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      "Welcome to U-Konek Mobile",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30
-                      )
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+
+              SizedBox(height: 20,),
+              /// IMAGE (TOP)
+            Image.asset("assets/welcome_screen/welcomPhoto-removebg-preview.png",
+              width: 1000,
+              height: 400,
+              fit: BoxFit.cover,
+            ),
+
+              /// TEXT SECTION
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "WELCOME TO",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black,
+                      letterSpacing: 0,
                     ),
-                    SizedBox(
-                      height: 20,
+                  ),
+
+                  //SizedBox(height: 5),
+
+                  Text(
+                    "U-KONEK",
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2B6EFF),
                     ),
-                    Text("Connect with trusted healthcare professionals anytime, anywhere. "
-                        "Track your health, get reminders, and stay informed with U-KONEK — your personal healthcare companion.",
-                    textAlign: TextAlign.center,
+                  ),
+
+                  SizedBox(height: 15),
+
+                  Text(
+                    "Connect with trusted healthcare professionals anytime, anywhere. "
+                        "Track your health, get reminders, and stay informed with U-KONEK — "
+                        "your personal healthcare companion.",
+                    textAlign: TextAlign.left,
                     style: TextStyle(
                       color: Colors.grey[700],
-                      fontSize: 15,
-                    )
-                    )
-                  ],
-                ),
-                Container(
-                  height: MediaQuery.of(context).size.height / 3,
-                  decoration: BoxDecoration(
-                    image: DecorationImage
-                      (image: AssetImage
-                      ("assets/welcome_screen/welcomeScreenPhoto.png")
-                    )
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+              /// BUTTON
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => uKonekMenuPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF2B6EFF),
+                  foregroundColor: Colors.white,
+                  fixedSize: Size(double.infinity, 60),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  textStyle: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
                 ),
-
-                Column(
-                  children: <Widget>[
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => uKonekMenuPage()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF2B6EFF), // bright blue
-                        foregroundColor: Colors.white,       // text color
-                        shadowColor: Colors.black.withOpacity(0.25), // subtle shadow
-                        elevation: 4,                        // shadow depth
-                        minimumSize: Size(double.infinity, 60), // full width & height
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20), // rounded corners
-                        ),
-                        textStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      child: Text("GET STARTED"),
-                    )
-                  ],
-                )
-              ],
-            ),
-          )
+                child: Text("GET STARTED"),
+              ),
+            ],
+          ),
+        ),
       ),
     );
-
   }
-
 }
+
