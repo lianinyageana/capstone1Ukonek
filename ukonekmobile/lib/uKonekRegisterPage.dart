@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:string_similarity/string_similarity.dart';
@@ -19,7 +20,9 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
   final ageController = TextEditingController();
   final contactController = TextEditingController();
   final emailController = TextEditingController();
-  final addressController = TextEditingController();
+  final houseNumberController = TextEditingController();
+  final streetNameController = TextEditingController();
+  final barangayController = TextEditingController(text: "Ugong"); // Default to Barangay Ugong
   final emergencyNameController = TextEditingController();
   final emergencyContactController = TextEditingController();
   final relationController = TextEditingController();
@@ -195,20 +198,12 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
                         _styledField("Surname", surnameController, Icons.badge_outlined),
                         _datePicker(),
                         _styledField("Age", ageController, Icons.cake_outlined, enabled: false),
-                        _styledField("Contact Number", contactController, Icons.phone_outlined),
+                        _phoneField("Contact Number", contactController, Icons.phone_outlined),
                         _styledField("Email Address", emailController, Icons.email_outlined),
-                        _styledField("Complete Address", addressController, Icons.location_on_outlined),
+                        _styledField("House Number", houseNumberController, Icons.home_outlined),
+                        _styledField("Street Name", streetNameController, Icons.signpost_outlined),
+                        _styledField("Barangay", barangayController, Icons.location_city_outlined, enabled: false),
                         _sexSelector(),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    _sectionCard(
-                      icon: Icons.emergency_outlined,
-                      title: "Emergency Contact",
-                      children: [
-                        _styledField("Complete Name", emergencyNameController, Icons.person_outlined),
-                        _styledField("Contact Number", emergencyContactController, Icons.phone_outlined),
-                        _styledField("Relation", relationController, Icons.people_outline),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -288,6 +283,48 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
           focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _primary, width: 1.8)),
           errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Colors.redAccent)),
           disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFDDE3F0))),
+        ),
+      ),
+    );
+  }
+
+  // ── Phone field with +63 prefix ────────────────────────────────────────
+  Widget _phoneField(String label, TextEditingController controller, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: TextInputType.phone,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(10), // 10 digits after +63
+        ],
+        validator: (v) {
+          if (v == null || v.isEmpty) return "$label is required";
+          if (v.length != 10) return "Please enter a valid 10-digit number";
+          return null;
+        },
+        style: const TextStyle(fontSize: 14, color: Color(0xFF1A1A2E)),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+          prefixIcon: Icon(icon, color: _primary.withOpacity(0.6), size: 20),
+          prefix: Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(
+              "+63 ",
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500),
+            ),
+          ),
+          hintText: "9XX XXX XXXX",
+          hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade400),
+          filled: true,
+          fillColor: const Color(0xFFF8FAFF),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFDDE3F0))),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFDDE3F0))),
+          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: _primary, width: 1.8)),
+          errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Colors.redAccent)),
         ),
       ),
     );
@@ -490,12 +527,29 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
         ),
         onPressed: () {
           if (_formKey.currentState!.validate() && selectedDate != null && ageController.text.isNotEmpty && _idImage != null) {
+            // Format contact numbers with +63 prefix
+            final fullContact = "+63${contactController.text}";
+            final fullEmergencyContact = "+63${emergencyContactController.text}";
+
+            // Combine address fields
+            final completeAddress = "${houseNumberController.text}, ${streetNameController.text}, Brgy. ${barangayController.text}, Valenzuela City";
+
             Navigator.push(context, MaterialPageRoute(builder: (_) => uKonekPreviewPage(
-              firstName: firstNameController.text, middleName: middleNameController.text, surname: surnameController.text,
-              dob: "${selectedDate!.month}/${selectedDate!.day}/${selectedDate!.year}", age: ageController.text,
-              contact: contactController.text, sex: selectedSex, email: emailController.text, address: addressController.text,
-              emergencyName: emergencyNameController.text, emergencyContact: emergencyContactController.text,
-              relation: relationController.text, idImage: _idImage, idVerified: _idVerified, extractedOcrText: _extractedOcrText,
+              firstName: firstNameController.text,
+              middleName: middleNameController.text,
+              surname: surnameController.text,
+              dob: "${selectedDate!.month}/${selectedDate!.day}/${selectedDate!.year}",
+              age: ageController.text,
+              contact: fullContact,
+              sex: selectedSex,
+              email: emailController.text,
+              address: completeAddress,
+              emergencyName: emergencyNameController.text,
+              emergencyContact: fullEmergencyContact,
+              relation: relationController.text,
+              idImage: _idImage,
+              idVerified: _idVerified,
+              extractedOcrText: _extractedOcrText,
             )));
           } else {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please complete all fields and upload your ID")));
