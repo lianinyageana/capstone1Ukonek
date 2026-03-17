@@ -111,7 +111,7 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
     if (_idImage == null) return;
     setState(() => _isVerifying = true);
     final inputImage = InputImage.fromFile(_idImage!);
-    final textRecognizer = TextRecognizer();
+    final textRecognizer.sp = TextRecognizer();
     final recognizedText = await textRecognizer.processImage(inputImage);
     await textRecognizer.close();
     final rawText = recognizedText.text.trim();
