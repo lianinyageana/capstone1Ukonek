@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'uKonekDashboardPage.dart';
+import 'uKonekDashBoard.dart';
 import 'uKonekRegisterPage.dart';
 import 'uKonekMenuPage.dart';
 import 'uKonekForgotPasswordPage.dart';

@@ -110,8 +110,8 @@ class _uKonekRegisterPageState extends State<uKonekRegisterPage> {
   Future<void> verifyID() async {
     if (_idImage == null) return;
     setState(() => _isVerifying = true);
-    final inputImage = InputImage.fromFile(_idImage!);
-    final textRecognizer.sp = TextRecognizer();
+    final inputImage    = InputImage.fromFile(_idImage!);
+    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin); // ← fix here
     final recognizedText = await textRecognizer.processImage(inputImage);
     await textRecognizer.close();
     final rawText = recognizedText.text.trim();
